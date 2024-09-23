@@ -1,0 +1,120 @@
+# Toman Bike Share: SQL & Tableau Project
+## Table of Contents
+- [Business Task](#business-task)
+- [[Build a Database](#Build a Database)
+- [Develop SQL Queries](#Develop SQL Queries)
+- [Upload to Tableau & Build a Dashboard](#Upload to Tableau & Build a Dashboard)
+
+Please note that all the information regarding the case study has been sourced from the following link: [here](https://www.youtube.com/watch?v=jdGJWloo-OU&list=PLi5spBcf0UMXfbMt1X2bHQkk7mHXkTUhs&index=5&t=3233s). 
+
+***
+
+## Business Task
+We need to develop a dashboard for Toman Bike Share that displays key performance metrics for informed decision making. 
+Requirements: Hourly Revenue Analysis, Profit and Revenue Trends, Seasonal Revenue and Rider Demographics
+***
+
+## Build A Database
+
+Uploaded [CVS files](https://github.com/Gaelim/YT_bike_share) to BigQuery
+Verified all data uploaded, correct data types/schema and no missing values.
+
+***
+
+##Develop SQL Queries
+
+**1. Combined Tables from 2021 and 2022
+````sql
+SELECT * FROM `bikes-435819.Bikes.yr0`
+UNION all
+SELECT * FROM `bikes-435819.Bikes.yr1` 
+````
+Verified new table schema and all entries from each table present 
+	Table 1 (yr 0 2021) 17290 rows
+	Table 2 (yr 1 2022) 17468 rows
+	Combined 34758 rows
+Saved joint table as years combined
+
+**2.Added Cost to joint table
+````sql
+SELECT * FROM `bikes-435819.Bikes.years combined` as years
+LEFT JOIN `bikes-435819.Bikes.cost` as cost
+ON years.yr = cost.yr
+````
+Saved table with years and cost combined as yearCost
+
+**3. Gathered statistics from the table to gain insights into the data
+
+####Rider Demographic
+````sql
+SELECT SUM(riders)
+FROM `bikes-435819.Bikes.yearCost`
+GROUP BY rider_type
+````
+Casual 620017
+Registered 2672662
+
+####Riders by Season
+````sql
+SELECT season, SUM(riders)
+FROM `bikes-435819.Bikes.yearCost`
+GROUP BY season
+````
+| season      |sum of riders|
+| ----------- | ----------- |
+| 1           | 471348      |
+| 2           | 918589      |
+| 3           | 1061129     |
+| 4           | 841613      |
+- Season 1:Winter had 472348 riders.
+- Season 2:Spring had 918589 riders.
+- Season 3:Summer had 1061129 riders.
+- Season 4:Fall had 841613 riders.
+
+#####Riders by Month
+````sql
+SELECT mnth,  SUM(riders)
+FROM `bikes-435819.Bikes.yearsCost`
+GROUP BY mnth
+````
+| month       |sum of riders|
+| ----------- | ----------- |
+| 1           | 134933      |
+| 2           | 151352      |
+| 3           | 228920      |
+| 4           | 269094      |
+| 5           | 331686      |
+| 6           | 346342      |
+| 7           | 344948      |
+| 8           | 351194      |
+| 9           | 345991      |
+| 10          | 322352      |
+| 11          | 254831      |
+| 12          | 211036      |
+- Month 1:January had 134933 riders.
+- Month 2:February had 151352 riders.
+- Month 3:March had 228920 riders.
+- Month 4:April had 269094 riders.
+- Month 5:May had 331686 riders.
+- Month 6:June had 346342 riders.
+- Month 7:July had 344948 riders.
+- Month 8:August had 351194 riders.
+- Month 9:September had 345991 riders.
+- Month 10:October had 322352 riders.
+- Month 11:November had 254831 riders.
+- Month 12:December had 211036 riders.
+
+**4.Filter table to focus on certain columns, add revenue & profit column.
+````sql
+SELECT dteday, season, yr, weekday, hr, rider_type, riders, price, COGS, 
+riders * price as revenue, riders * price - riders * COGS as profit
+FROM `bikes-435819.Bikes.yearCost`
+````
+***
+
+##Upload to Tableau & Build a Dashboard
+Uploaded csv file from filtered table to Tableau.
+Created charts for Average Revenue, Sum of Revenue by Season, KPI over time, Rider Demographics, Total Revenue, Total Profit, Total Riders and Profit Margin.
+Included a sliding filter to update all graphs and info based on month increments throughout the 2 years of data.
+Check out my Tableau Dashboard [here](https://public.tableau.com/views/TomanBikeShare/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)
+***
